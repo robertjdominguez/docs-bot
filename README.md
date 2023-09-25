@@ -7,7 +7,7 @@
 Clone the repository using the following command:
 
 ```bash
-git clone https://...
+git clone https://github.com/robertjdominguez/docs-bot.git
 ```
 
 In the root of the project, create a .env file and add the following:
@@ -117,4 +117,5 @@ With an example "final" response of:
   "content": "In Hasura, there is no hard limit on the number of models you can have. You can define as many models as you need to represent the data structure of your project.\n\nHowever, it's important to consider the performance and maintainability implications of having a large number of models. Each model comes with its own set of database tables or data source connections, and managing a large number of models can make your project more complex.\n\nIt is recommended to organize your models in a logical and manageable way, considering factors such as data relationships, data access patterns, and data source connections. This will help you maintain a clear and structured data model in your project.\n\nIf you are using a PostgreSQL database, it's worth noting that PostgreSQL itself imposes certain limitations on the number of tables, columns, and other database objects you can have. These limits vary depending on the PostgreSQL version and configuration.\n\nIn summary, while there is no specific limit on the number of models in Hasura, it is advisable to consider the practicality, performance, and maintainability aspects when designing your data model."
 }
 ```
+
 # docs-bot
