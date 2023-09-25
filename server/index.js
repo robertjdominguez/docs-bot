@@ -125,7 +125,7 @@ wsApp.ws('/llm', async (ws, request) => {
       let columnsArray = columns.split(',').map((field) => field.trim());
 
       // Perform your LLMQuery here and send results to the WebSocket
-      LLMQuery(className, columnsArray, searchText, messages)
+      LLMQuery(ws, className, columnsArray, searchText, messages)
         .then((results) => {
           ws.send(JSON.stringify({ results }));
         })

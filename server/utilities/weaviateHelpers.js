@@ -92,19 +92,19 @@ const nearText = async (className, fields, text) => {
   }
 };
 
-const LLMQuery = async (className, fields, text, messages) => {
-  const embeddings = await nearText(className, fields, text);
-
-  function makePrompt(embeddings) {
-    let embeddingString = '';
-    embeddings.data.Get.Pages.map((embedding) => {
-      embeddingString += `${embedding.title}\n${embedding.body}\n\n`;
-    });
-    let promptText = `\n\n${embeddingString}`;
-    return promptText;
-  }
-
+const LLMQuery = async (ws, className, fields, text, messages) => {
   try {
+    const embeddings = await nearText(className, fields, text);
+
+    function makePrompt(embeddings) {
+      let embeddingString = '';
+      embeddings.data.Get.Pages.map((embedding) => {
+        embeddingString += `${embedding.title}\n${embedding.body}\n\n`;
+      });
+      let promptText = `\n\n${embeddingString}`;
+      return promptText;
+    }
+
     let conversation = [
       {
         role: 'system',
@@ -130,19 +130,32 @@ const LLMQuery = async (className, fields, text, messages) => {
     const chatCompletion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: conversation,
+      stream: true,
     });
 
-    const assistantReply = chatCompletion.choices[0].message.content;
+    let reply = '';
+
+    for await (const chunk of chatCompletion) {
+      reply += chunk.choices[0].delta.content;
+      ws.send(chunk.choices[0].delta.content);
+    }
+
+    const assistantReply = reply;
 
     conversation.push({
       role: 'assistant',
       content: assistantReply,
     });
 
-    return conversation;
+    // Send responses to the WebSocket connection
+    const response = {
+      pastMessages: conversation,
+    };
+
+    ws.send(JSON.stringify(response));
   } catch (err) {
     console.error(err);
-    return err;
+    ws.send(JSON.stringify({ error: err.message }));
   }
 };
 
