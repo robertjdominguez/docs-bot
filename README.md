@@ -18,6 +18,7 @@ POSTGRES_USER=<YOUR_DB_USERNAME>
 POSTGRES_PASSWORD=<YOUR_DB_PASSWORD>
 POSTGRESQL_CONNECTION_STRING=postgres://<DB_USERNAME>:<DB_PASSWORD>@postgres:5432/<DB_NAME>
 WEAVIATE_URL=weaviate:8080
+SERVER_BASE_URL=server:3000
 OPENAI_API_KEY=<YOUR_OPEN_AI_API_KEY>
 GIT_REPO_URL=https://<YOUR_GH_USERNAME>:<YOUR_GH_TOKEN>@github.com/hasura/v3-docs.git
 PATHNAME='/vectorizer/v3-docs/docs'
@@ -25,18 +26,15 @@ PATHNAME='/vectorizer/v3-docs/docs'
 
 ## Testing
 
-Run `docker compose up -d` to start the server. Then, vectorize the `categories` and `pages` tables by hitting the
-`localhost:3000/vectorize/<TABLE>` endpoint with a GET request:
+Run `docker compose up -d` to start the server. A series of containers will be started, including a PostgreSQL database,
+Weaviate, and the server itself.
 
-```bash
-curl localhost:3000/vectorize/categories
-```
+Additionally, a service called `vectorizer` will exit on completion after it:
 
-Then:
-
-```bash
-curl localhost:3000/vectorize/pages
-```
+- Clones the docs repo
+- Crawls the docs and adds them to the PostgreSQL database
+- Creates a Weaviate schema
+- Vectorizes the data in PostgreSQL and adds it to Weaviate
 
 You can now query using examples below 👇
 
