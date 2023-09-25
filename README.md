@@ -2,12 +2,17 @@
 
 ## Overview
 
+This is intended to be used as a service for adding an AI assistant to any Docusaurus site. As a user, you can define
+the repository you want to use, and the path to the docs you want to use. The service will then crawl the docs, add them
+to a PostgreSQL database, and vectorize them using Weaviate. The service will then start a server that can be queried
+using ChatGPT to get answers to questions about the docs.
+
 ## Installation and Setup
 
 Clone the repository using the following command:
 
 ```bash
-git clone https://...
+git clone https://github.com/robertjdominguez/docs-bot.git
 ```
 
 In the root of the project, create a .env file and add the following:
@@ -18,31 +23,44 @@ POSTGRES_USER=<YOUR_DB_USERNAME>
 POSTGRES_PASSWORD=<YOUR_DB_PASSWORD>
 POSTGRESQL_CONNECTION_STRING=postgres://<DB_USERNAME>:<DB_PASSWORD>@postgres:5432/<DB_NAME>
 WEAVIATE_URL=weaviate:8080
+SERVER_BASE_URL=server:3000
 OPENAI_API_KEY=<YOUR_OPEN_AI_API_KEY>
-GIT_REPO_URL=https://<YOUR_GH_USERNAME>:<YOUR_GH_TOKEN>@github.com/hasura/v3-docs.git
-PATHNAME='/vectorizer/v3-docs/docs'
+GIT_REPO_URL=https://<YOUR_GH_USERNAME>:<YOUR_GH_TOKEN>@github.com/<YOUR_GH_ORG>/<YOUR_REPO>.git
+PATHNAME='/vectorizer/<YOUR_GH_REPO_NAME>/<FOLDER_CONTAINING_MDX_FILES>'
+PRODUCT_NAME='<YOUR_PRODUCTS_NAME>'
 ```
 
-## Testing
+| Variable                     | Description                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| POSTGRES_DB                  | The name of the PostgreSQL database you want to use.                                                                                            |
+| POSTGRES_USER                | The username for the PostgreSQL database you want to use.                                                                                       |
+| POSTGRES_PASSWORD            | The password for the PostgreSQL database you want to use.                                                                                       |
+| POSTGRESQL_CONNECTION_STRING | The connection string for the PostgreSQL database you want to use. These values should match the previous variables.                            |
+| WEAVIATE_URL                 | The URL for the Weaviate instance you want to use. Should be as appears in example above unless you explicitly change the port or service name. |
+| SERVER_BASE_URL              | The URL for the server you want to use. Should be as appears in example above unless you explicitly change the port or service name.            |
+| OPENAI_API_KEY               | The API key for your OpenAI account.                                                                                                            |
+| GIT_REPO_URL                 | The URL for the repository you want to use, including your username and access token.                                                           |
+| PATHNAME                     | The path to the folder containing the MDX files you want to use.                                                                                |
+| PRODUCT_NAME                 | The name of the product you want to use. This is injected into the prompt for GPT.                                                              |
 
-Run `docker compose up -d` to start the server. Then, vectorize the `categories` and `pages` tables by hitting the
-`localhost:3000/vectorize/<TABLE>` endpoint with a GET request:
+## Usage
 
-```bash
-curl localhost:3000/vectorize/categories
-```
+Run `docker compose up -d` to start the server. A series of containers will be started, including a PostgreSQL database,
+Weaviate, and the server itself.
 
-Then:
+Additionally, a service called `vectorizer` will exit on completion after it:
 
-```bash
-curl localhost:3000/vectorize/pages
-```
+- Clones the docs repo
+- Crawls the docs and adds them to the PostgreSQL database
+- Creates a Weaviate schema
+- Vectorizes the data in PostgreSQL and adds it to Weaviate
 
 You can now query using examples below 👇
 
 ### Initial query
 
-With this server running, hit the `localhost:3000/llm` endpoint with a POST request:
+With this server running, hit the `ws://localhost:3000/llm` endpoint
+[via a websocket](https://learning.postman.com/docs/sending-requests/websocket/websocket/#creating-websocket-requests):
 
 ```json
 {
@@ -78,7 +96,7 @@ Take the response from the LLM and add it to the `messages` array in the request
 
 ### Repeat with less "context" in each query to gauge efficacy
 
-In the previous example,w e used `What's required for me to use one?` as the next query. We didn't mention the word
+In the previous example, we used `What's required for me to use one?` as the second query. We didn't mention the word
 `model`. Again, we'll force GPT to use context from previous messages to see how well it can do. It's also been given a
 directive in its prompt to not hallucinate or make up information...sometimes this works well. As an example, here's our
 next query (including all previous messages):
@@ -117,4 +135,8 @@ With an example "final" response of:
   "content": "In Hasura, there is no hard limit on the number of models you can have. You can define as many models as you need to represent the data structure of your project.\n\nHowever, it's important to consider the performance and maintainability implications of having a large number of models. Each model comes with its own set of database tables or data source connections, and managing a large number of models can make your project more complex.\n\nIt is recommended to organize your models in a logical and manageable way, considering factors such as data relationships, data access patterns, and data source connections. This will help you maintain a clear and structured data model in your project.\n\nIf you are using a PostgreSQL database, it's worth noting that PostgreSQL itself imposes certain limitations on the number of tables, columns, and other database objects you can have. These limits vary depending on the PostgreSQL version and configuration.\n\nIn summary, while there is no specific limit on the number of models in Hasura, it is advisable to consider the practicality, performance, and maintainability aspects when designing your data model."
 }
 ```
-# docs-bot
+
+## Testing with a client
+
+We've included a client as well. To use it, move into the `/client` directory and run `npm i`. Then, run `npm run start`
+and use the UI to query the server.
