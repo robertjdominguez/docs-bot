@@ -108,7 +108,9 @@ const LLMQuery = async (className, fields, text, messages) => {
     let conversation = [
       {
         role: 'system',
-        content: `You are a helpful AI assistant tasked with assisting users use GraphQL Engine. If you don't know an answer, you should not make one up. Don't invent information that isn't present in the provided documentation or previous messages. Use the following information from the documentation to help the user with their question: ${makePrompt(
+        content: `You are a helpful AI assistant tasked with assisting users use ${
+          process.env.PRODUCT_NAME
+        }. If you don't know an answer, you should not make one up. Don't invent information that isn't present in the provided documentation or previous messages. Use the following information from the documentation to help the user with their question: ${makePrompt(
           embeddings
         )})}`,
       },

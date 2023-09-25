@@ -25,11 +25,25 @@ POSTGRESQL_CONNECTION_STRING=postgres://<DB_USERNAME>:<DB_PASSWORD>@postgres:543
 WEAVIATE_URL=weaviate:8080
 SERVER_BASE_URL=server:3000
 OPENAI_API_KEY=<YOUR_OPEN_AI_API_KEY>
-GIT_REPO_URL=https://<YOUR_GH_USERNAME>:<YOUR_GH_TOKEN>@github.com/hasura/v3-docs.git
+GIT_REPO_URL=https://<YOUR_GH_USERNAME>:<YOUR_GH_TOKEN>@github.com/<YOUR_GH_ORG>/<YOUR_REPO>.git
 PATHNAME='/vectorizer/<YOUR_GH_REPO_NAME>/<FOLDER_CONTAINING_MDX_FILES>'
+PRODUCT_NAME='<YOUR_PRODUCTS_NAME>'
 ```
 
-## Testing
+| Variable                     | Description                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| POSTGRES_DB                  | The name of the PostgreSQL database you want to use.                                                                                            |
+| POSTGRES_USER                | The username for the PostgreSQL database you want to use.                                                                                       |
+| POSTGRES_PASSWORD            | The password for the PostgreSQL database you want to use.                                                                                       |
+| POSTGRESQL_CONNECTION_STRING | The connection string for the PostgreSQL database you want to use. These values should match the previous variables.                            |
+| WEAVIATE_URL                 | The URL for the Weaviate instance you want to use. Should be as appears in example above unless you explicitly change the port or service name. |
+| SERVER_BASE_URL              | The URL for the server you want to use. Should be as appears in example above unless you explicitly change the port or service name.            |
+| OPENAI_API_KEY               | The API key for your OpenAI account.                                                                                                            |
+| GIT_REPO_URL                 | The URL for the repository you want to use, including your username and access token.                                                           |
+| PATHNAME                     | The path to the folder containing the MDX files you want to use.                                                                                |
+| PRODUCT_NAME                 | The name of the product you want to use. This is injected into the prompt for GPT.                                                              |
+
+## Usage
 
 Run `docker compose up -d` to start the server. A series of containers will be started, including a PostgreSQL database,
 Weaviate, and the server itself.
@@ -81,7 +95,7 @@ Take the response from the LLM and add it to the `messages` array in the request
 
 ### Repeat with less "context" in each query to gauge efficacy
 
-In the previous example,w e used `What's required for me to use one?` as the next query. We didn't mention the word
+In the previous example, we used `What's required for me to use one?` as the second query. We didn't mention the word
 `model`. Again, we'll force GPT to use context from previous messages to see how well it can do. It's also been given a
 directive in its prompt to not hallucinate or make up information...sometimes this works well. As an example, here's our
 next query (including all previous messages):
