@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import express from 'express';
+import expressWs from 'express-ws';
 import bodyParser from 'body-parser';
 import { vectorize, nearText, deleteClass, capitalize, LLMQuery } from './utilities/weaviateHelpers.js';
 import { showColumns } from './utilities/showHelpers.js';
@@ -10,6 +11,7 @@ config();
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+const { app: wsApp } = expressWs(app);
 
 // show all available tables
 app.get('/show_tables', (req, res) => {
@@ -103,20 +105,37 @@ app.post('/near_text', async (req, res) => {
 });
 
 // make an LLM query to Weaviate
-app.post('/llm', async (req, res) => {
-  if (!req.body.columns || !req.body.query || !req.body.table) {
-    return res.status(400).json({ error: 'An object with table, columns, and a query are required.' });
-  }
+wsApp.ws('/llm', async (ws, request) => {
+  ws.on('message', (message) => {
+    // Parse incoming message as JSON
+    try {
+      const data = JSON.parse(message);
 
-  const columns = req.body.columns;
-  let searchText = req.body.query;
-  const messages = req.body.messages;
-  const className = capitalize(req.body.table);
+      // Check if the message is a valid request
+      if (!data.columns || !data.query || !data.table) {
+        ws.send(JSON.stringify({ error: 'An object with table, columns, and a query are required.' }));
+        return;
+      }
 
-  let columnsArray = columns.split(',').map((field) => field.trim());
+      const columns = data.columns;
+      let searchText = data.query;
+      const messages = data.messages;
+      const className = capitalize(data.table);
 
-  const results = await LLMQuery(className, columnsArray, searchText, messages);
-  res.json({ results });
+      let columnsArray = columns.split(',').map((field) => field.trim());
+
+      // Perform your LLMQuery here and send results to the WebSocket
+      LLMQuery(className, columnsArray, searchText, messages)
+        .then((results) => {
+          ws.send(JSON.stringify({ results }));
+        })
+        .catch((error) => {
+          ws.send(JSON.stringify({ error: error.message }));
+        });
+    } catch (error) {
+      ws.send(JSON.stringify({ error: 'Invalid JSON message' }));
+    }
+  });
 });
 
 // delete a class in Weaviate

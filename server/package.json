@@ -19,6 +19,7 @@
     "nodemon": "^3.0.1",
     "openai": "^4.10.0",
     "pg": "^8.11.3",
-    "weaviate-ts-client": "^1.5.0"
+    "weaviate-ts-client": "^1.5.0",
+    "express-ws": "5.0.2"
   }
 }
