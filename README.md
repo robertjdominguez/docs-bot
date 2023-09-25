@@ -2,6 +2,11 @@
 
 ## Overview
 
+This is intended to be used as a service for adding an AI assistant to any Docusaurus site. As a user, you can define
+the repository you want to use, and the path to the docs you want to use. The service will then crawl the docs, add them
+to a PostgreSQL database, and vectorize them using Weaviate. The service will then start a server that can be queried
+using ChatGPT to get answers to questions about the docs.
+
 ## Installation and Setup
 
 Clone the repository using the following command:
@@ -21,7 +26,7 @@ WEAVIATE_URL=weaviate:8080
 SERVER_BASE_URL=server:3000
 OPENAI_API_KEY=<YOUR_OPEN_AI_API_KEY>
 GIT_REPO_URL=https://<YOUR_GH_USERNAME>:<YOUR_GH_TOKEN>@github.com/hasura/v3-docs.git
-PATHNAME='/vectorizer/v3-docs/docs'
+PATHNAME='/vectorizer/<YOUR_GH_REPO_NAME>/<FOLDER_CONTAINING_MDX_FILES>'
 ```
 
 ## Testing
@@ -115,5 +120,3 @@ With an example "final" response of:
   "content": "In Hasura, there is no hard limit on the number of models you can have. You can define as many models as you need to represent the data structure of your project.\n\nHowever, it's important to consider the performance and maintainability implications of having a large number of models. Each model comes with its own set of database tables or data source connections, and managing a large number of models can make your project more complex.\n\nIt is recommended to organize your models in a logical and manageable way, considering factors such as data relationships, data access patterns, and data source connections. This will help you maintain a clear and structured data model in your project.\n\nIf you are using a PostgreSQL database, it's worth noting that PostgreSQL itself imposes certain limitations on the number of tables, columns, and other database objects you can have. These limits vary depending on the PostgreSQL version and configuration.\n\nIn summary, while there is no specific limit on the number of models in Hasura, it is advisable to consider the practicality, performance, and maintainability aspects when designing your data model."
 }
 ```
-
-# docs-bot
