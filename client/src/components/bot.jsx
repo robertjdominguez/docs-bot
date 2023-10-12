@@ -84,7 +84,7 @@ const Bot = () => {
             <MessageHistory conversation={conversation} />
           </div>
           {gptResponse.length > 0 && (
-            <div className="bg-green-200 text-green-800 mr-auto p-2 rounded mb-2 w-2/3 text-start">
+            <div className="bg-green-200 text-green-800 mr-auto p-2 rounded mb-2 w-2/3 text-start rounded-bl-[0.9rem] rounded-tr-[0.9rem] rounded-br-[0.9rem]">
               <p>{gptResponse}</p>
             </div>
           )}

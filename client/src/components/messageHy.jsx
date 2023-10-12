@@ -13,7 +13,19 @@ export const MessageHistory = ({ conversation }) => {
                   : message.role === 'assistant'
                   ? 'bg-green-200 text-green-800 mr-auto text-start'
                   : ''
-              } p-4 rounded mb-4 w-2/3`}>
+              }
+              p-4
+              mb-4
+              w-2/3
+              rounded
+              shadow-sm
+              ${
+                message.role === 'user'
+                  ? 'rounded-tl-[0.9rem] rounded-bl-[0.9rem] rounded-br-[0.9rem]'
+                  : message.role === 'assistant'
+                  ? 'rounded-bl-[0.9rem] rounded-tr-[0.9rem] rounded-br-[0.9rem]'
+                  : ''
+              }`}>
               <p>{message.content}</p>
             </div>
           ))
